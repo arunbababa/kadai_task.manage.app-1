@@ -15,6 +15,20 @@ class Controller_User1 extends Controller
         return View::forge('form');
     }
 
+    public function action_users(){
+        DB::insert('users')->set(array(
+            'username' => Input::post('username'),
+            'password' => Input::post('password'),
+            'email' => Input::post('email'),
+        ))->execute();
+        // 確認
+        //  echo Input::post('username');
+        //  echo Input::post('password');
+        //  echo Input::post('email');
+
+        return View::forge('users');
+    }
+
     // public function action_insert()
     // {
     //     DB::insert('userregister')->set(array(
@@ -29,8 +43,25 @@ class Controller_User1 extends Controller
     public function action_auth()
 	{
         // ユーザ登録
+        return View::forge('users');
+        $username = Input::post('username');
+        $password = Input::post('password');
+        $email = Input::post('email');
 
-        // Auth::create_user('yamada','arunba918','hatuki.1.gzs@icloud.com',1);
+        if (empty($username) || empty($password) || empty($email)) {
+        return 'Username, password, or email is empty.';
+        }
+
+        else {
+            Auth::create_user($username, $password, $email, 1);
+            return View::forge('users');
+        } 
+        // Auth::create_user(Input::post('username'),Input::post('password'),Input::post('email'),1);
+        // return View::forge('users');これだと通らない
+
+            // すでに同じメールアドレスが登録されている場合
+            // if
+
         // このクリエイトユーザーにフォームから受け取ったものを配列として渡す感じのコード書けばよさそう
 
         // ログイン（viewはまだ作っていないため、一旦echoでログインの可否を判断しています
