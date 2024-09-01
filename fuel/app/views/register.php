@@ -9,7 +9,7 @@
 <body>
     <div class="form-container">
         <h1>登録する</h1>
-        <form method="POST" action="/user1/auth">
+        <form method="POST" action="/user1/checkandgototask">
             <div class="form-group">
                 <label for="username">ユーザーネーム：</label>
                 <input type="text" id="username" name="username">

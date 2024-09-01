@@ -40,32 +40,47 @@ class Controller_User1 extends Controller
         
     // }
 
-    public function action_auth()
+    public function action_registerview()
+    {
+        return View::forge('register'); 
+
+    } 
+
+    public function action_checkandgototask() 
+    // 思ったビューとauthクラス切り離した方がよくね？
 	{
-        // ユーザ登録
-        return View::forge('users');
-        $username = Input::post('username');
-        $password = Input::post('password');
-        $email = Input::post('email');
+        // ユーザ登録 ↓いる？
+        // return View::forge('register');
+        // $username = Input::post('username');
+        // $password = Input::post('password');
+        // $email = Input::post('email');
+        Auth::create_user(Input::post('username'),Input::post('username'),Input::post('email'),1);
+        return View::forge('form_success');
 
-        if (empty($username) || empty($password) || empty($email)) {
-        return 'Username, password, or email is empty.';
-        }
+        // if (empty($username) || empty($password) || empty($email)) {
+        //     return 'Username, password, or email is empty.';
+        // }else {
+        //         Auth::create_user($username, $password, $email, 1);
+        //         return View::forge('form');
+        //     }
+        // // 
 
-        else {
-            Auth::create_user($username, $password, $email, 1);
-            return View::forge('users');
-        } 
-        // Auth::create_user(Input::post('username'),Input::post('password'),Input::post('email'),1);
-        // return View::forge('users');これだと通らない
-
-            // すでに同じメールアドレスが登録されている場合
-            // if
+            // done! but if i put information of already user go error
+            // 
 
         // このクリエイトユーザーにフォームから受け取ったものを配列として渡す感じのコード書けばよさそう
 
         // ログイン（viewはまだ作っていないため、一旦echoでログインの可否を判断しています
-        // tanaka:Thatuki918      yamada arunba918
+    }
+
+    public function action_addtask()
+    {
+        return View::forge('addtask');
+    }
+
+    public function action_rogin()
+    {
+        // tanaka:Thatuki918      yamada arunba918 ←すでにある
         if(Auth::login('tanaka','newpassword',)){
             echo 'ログインに成功しました';
         }else{
