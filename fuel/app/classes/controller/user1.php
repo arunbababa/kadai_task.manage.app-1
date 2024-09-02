@@ -3,79 +3,59 @@
 // あれ、userregesiterDBへの接続はどこでしているんだろう
 class Controller_User1 extends Controller
 {
-    public function action_form(){
-        DB::insert('friends')->set(array(
-            'name1' => Input::post('name1'),
-            'name2' => Input::post('name2'),
-            'age' => Input::post('age'),
-            'tel' => Input::post('tel'),
-            'email' => Input::post('email'),
-        ))->execute();
-        // echo Input::post('name1');
-        return View::forge('form');
-    }
-
-    public function action_users(){
-        DB::insert('users')->set(array(
-            'username' => Input::post('username'),
-            'password' => Input::post('password'),
-            'email' => Input::post('email'),
-        ))->execute();
-        // 確認
-        //  echo Input::post('username');
-        //  echo Input::post('password');
-        //  echo Input::post('email');
-
-        return View::forge('users');
-    }
-
-    // public function action_insert()
-    // {
-    //     DB::insert('userregister')->set(array(
-    //         'name1' => '山田',
-    //         'name2' => '太郎',
-    //         'tel' => '09012345678',
-    //         'email' => 'tarou@yahoo.co.jp',
-    //     ))->execute();
-        
-    // }
-
-    public function action_registerview()
+    public function action_register()
     {
-        return View::forge('register'); 
+        return View::forge('registerview'); 
 
     } 
 
     public function action_checkandgototask() 
-    // 思ったビューとauthクラス切り離した方がよくね？
 	{
-        // ユーザ登録 ↓いる？
-        // return View::forge('register');
-        // $username = Input::post('username');
-        // $password = Input::post('password');
-        // $email = Input::post('email');
-        Auth::create_user(Input::post('username'),Input::post('username'),Input::post('email'),1);
-        return View::forge('form_success');
+        // フォーム入力の値を変数へ格納
+        $username = Input::post('username');
+        $password = Input::post('password');
+        $email = Input::post('email');
 
-        // if (empty($username) || empty($password) || empty($email)) {
-        //     return 'Username, password, or email is empty.';
-        // }else {
-        //         Auth::create_user($username, $password, $email, 1);
-        //         return View::forge('form');
-        //     }
-        // // 
-
-            // done! but if i put information of already user go error
-            // 
-
-        // このクリエイトユーザーにフォームから受け取ったものを配列として渡す感じのコード書けばよさそう
-
-        // ログイン（viewはまだ作っていないため、一旦echoでログインの可否を判断しています
+        // 入力されていない値がある場合は下のメッセージ 正常に入力された場合はタスク追加へ
+        if (empty($username) || empty($password) || empty($email)) {
+            return 'Username, password, or email is empty.';
+        }else {
+                Auth::create_user($username, $password, $email, 1);
+                return View::forge('form_success');
+        }
     }
+
+    // 多分これでも上記と同じかな未実験
+    public function action_checkandgototask2()
+    {
+        DB::insert('friends')->set(array(
+            'username' => Input::post('name1'),
+            'password' => Input::post('name2'),
+            'email' => Input::post('email'),
+        ))->execute();
+        // echo Input::post('name1');
+        return View::forge('form_success');
+    }
+
 
     public function action_addtask()
     {
-        return View::forge('addtask');
+        return View::forge('addtasks');
+    }
+
+    public function action_addedtask()
+    {
+        DB::insert('tasks')->set(array(
+            'taskname' => Input::post('taskname'),
+            'category' => Input::post('category'),
+            'importance' => Input::post('importance'),
+        ))->execute();
+        return View::forge('addedtasks');
+    }
+
+    public function action_tasklist()
+    {
+        
     }
 
     public function action_rogin()
@@ -103,7 +83,7 @@ class Controller_User1 extends Controller
             //     )
             // );
 
-        Auth::delete_user('yamada');
+        // Auth::delete_user('yamada');
     }
 
     public function action_auth3()

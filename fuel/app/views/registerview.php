@@ -16,7 +16,6 @@
             </div>
             <div class="form-group">
                 <label for="password">パスワード：</label> 
-                <!-- DB見るとパスワードハッシュ化されていない！！→action_authクラスから登録した奴がハッシュ化されている感じだ -->
                 <input type="password" id="password" name="password">
             </div>
             <div class="form-group">
