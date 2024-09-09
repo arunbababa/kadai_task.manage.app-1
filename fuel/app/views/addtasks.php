@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>タスク追加</title>
-    <link rel="stylesheet" href="/assets/css/style.css"> <!-- 必要に応じてCSSをリンク -->
+    <link rel="stylesheet" href="/assets/css/styleforaddtask.css"> <!-- 必要に応じてCSSをリンク -->
 </head>
 <body>
     <div class="container">
