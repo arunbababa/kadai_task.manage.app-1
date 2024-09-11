@@ -11,7 +11,7 @@
     <div class="container">
         <h1>登録できました！</h1>
         <p>早速今日のタスクを追加しましょう。</p>
-        <form action="/user1/addtask" method="post"> <!-- コントローラとアクションを指定 -->
+        <form action="/taskapp/addtask" method="post"> <!-- コントローラとアクションを指定 -->
             <button type="submit" class="btn">タスクを追加する</button>
         </form>
     </div>

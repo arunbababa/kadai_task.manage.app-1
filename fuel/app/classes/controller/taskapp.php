@@ -9,7 +9,7 @@ class Controller_Taskapp extends Controller
 
     } 
 
-    public function action_registersuccessandcreatetask() 
+    public function action_checkandgototask() 
 	{
        
         $post = Input::post();
