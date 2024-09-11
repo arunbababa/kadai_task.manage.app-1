@@ -1,48 +1,36 @@
 <?php
 
 // あれ、userregesiterDBへの接続はどこでしているんだろう
-class Controller_User1 extends Controller
+class Controller_Taskapp extends Controller
 {
-    public function action_register()
+    public function action_userregister()
     {
-        return View::forge('registerview'); 
+        return View::forge('new_registerview'); 
 
     } 
 
-    public function action_checkandgototask() 
+    public function action_registersuccessandcreatetask() 
 	{
-        // フォーム入力の値を変数へ格納
-        // $username = Input::post('username');
-        // $password = Input::post('password');
-        // $email = Input::post('email');
-
-        // // 入力されていない値がある場合は下のメッセージ 正常に入力された場合はタスク追加へ
-        // if (empty($username) || empty($password) || empty($email)) {
-        //     return 'Username, password, or email is empty.';
-        // }else {
-        //         Auth::create_user($username, $password, $email, 1);
-        //         return View::forge('form_success');
-        // }
-
+       
         $post = Input::post();
         \Log::error(print_r($post, true));
         Model_User::create($post);
-        return View::forge('form_success');
+        return View::forge('register_success');
     }
 
-    // 多分これでも上記と同じかな未実験
-    public function action_checkandgototask2()
-    {
+    // action_checkandgototask() と同じ機能を持つ関数、記述形式が異なる
+    // public function action_checkandgototask2()
+    // {
         // DB::insert('friends')->set(array(
         //     'username' => Input::post('name1'),
         //     'password' => Input::post('name2'),
         //     'email' => Input::post('email'),
         // ))->execute();
         // echo Input::post('name1');
-        $post = Input::post();
-        Model_User::create($post);
-        return View::forge('form_success');
-    }
+        // $post = Input::post();
+        // Model_User::create($post);
+        // return View::forge('form_success');
+    // }
 
 
     public function action_addtask()
