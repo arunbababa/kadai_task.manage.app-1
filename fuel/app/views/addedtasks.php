@@ -18,8 +18,8 @@
             <li><strong>カテゴリー:</strong> <?php echo htmlspecialchars(Input::post('category'), ENT_QUOTES, 'UTF-8'); ?></li>
             <li><strong>重要度:</strong> <?php echo htmlspecialchars(Input::post('importance'), ENT_QUOTES, 'UTF-8'); ?></li>
         </ul>
-        <a href="/user1/addtask" class="btn">別のタスクを追加する</a>
-        <a href="/user1/tasklist" class="btn">タスクリストを見る</a>
+        <a href="/taskapp/addtask" class="btn">別のタスクを追加する</a>
+        <a href="/taskapp/tasklist" class="btn">タスクリストを見る</a>
     </div>
 </body>
 </html>

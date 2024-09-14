@@ -1,6 +1,6 @@
 <?php
 
-// あれ、userregesiterDBへの接続はどこでしているんだろう
+
 class Controller_Taskapp extends Controller
 {
     public function action_userregister()
@@ -15,6 +15,7 @@ class Controller_Taskapp extends Controller
         $post = Input::post();
         \Log::error(print_r($post, true));
         Model_User::create($post);
+        Session::set('username', $post['username']);
         return View::forge('register_success');
     }
 
