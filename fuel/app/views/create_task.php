@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <h1>タスクを追加する</h1>
-        <form action="/user1/addedtask" method="post"> <!-- addedtasksアクションを呼び出す -->
+        <form action="/taskapp/addedtask" method="post"> <!-- addedtasksアクションを呼び出す -->
             <div class="form-group">
                 <label for="taskname">タスク名:</label>
                 <input type="text" id="taskname" name="taskname" required>

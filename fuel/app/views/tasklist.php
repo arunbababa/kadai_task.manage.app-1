@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>タスクリスト</title>
-    <link rel="stylesheet" href="/assets/css/stylefortasklist
-    .css"> <!-- 必要に応じてCSSをリンク -->
+    <link rel="stylesheet" href="/assets/css/tasklist.css"> <!-- 必要に応じてCSSをリンク -->
 </head>
 <body>
     <div class="container">
@@ -24,7 +23,7 @@
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
-        <a href="/user1/addtask" class="btn">タスクを追加する</a>
+        <a href="/taskapp/create_task" class="btn">タスクを追加する</a>
     </div>
 </body>
 </html>
