@@ -22,7 +22,8 @@
             <div class="form-group">
                 <label for="importance">重要度:</label>
                 <select id="importance" name="importance">
-                    <option value="low">低</option>
+                    <!-- ◆以下valueの中身を日本語にする、もしくはlabel属性にする(?) -->
+                    <option value="low">低</option> 
                     <option value="medium">中</option>
                     <option value="high">高</option>
                 </select>
