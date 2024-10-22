@@ -11,14 +11,14 @@
     <div class="container">
         <h1>登録できました！</h1>
         <p>早速今日のタスクを追加しましょう。</p>
-        <form action="/taskapp/create_task" method="post"> <!-- コントローラとアクションを指定 -->
+        <form action="/taskapp/createTask" method="post"> <!-- コントローラとアクションを指定 -->
             <button type="submit" class="btn">タスクを追加する</button>
         </form>
     </div>
 
     <!-- トースター通知部分 -->
     <div id="toast" class="toast">
-        登録が完了しました！ ユーザー名: <?= \Session::get('username'); ?>
+        登録が完了しました！早速ログインして革命的な１日にしましょう。 ユーザー名: <?= \Session::get('username'); ?>
     </div>
 
     <script>
@@ -30,7 +30,6 @@
                 toast.className = toast.className.replace("show", "");
             }, 3000); // 3秒後にトースターを非表示に
         }
-
         // ページロード時にトースターを表示
         window.onload = showToast;
     </script>

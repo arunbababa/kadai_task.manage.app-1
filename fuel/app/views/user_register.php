@@ -9,8 +9,8 @@
 <body>
     <div class="form-container">
         <h1>登録する</h1>
-        <form method="POST" action="/taskapp/checkandgototask">
-            <div class="form-group">
+        <form method="POST" action="/taskapp/LetsCreateTask">
+            <div class="form-group"> <!-- これいる？フォーム全体にform-containerあるしやるとしたらdiv class=form-usernameとかで個々のdiv作るべきじゃない？ -->
                 <label for="username">ユーザーネーム：</label>
                 <input type="text" id="username" name="username">
             </div>

@@ -19,6 +19,8 @@
                         <strong>タスク名:</strong> <?php echo htmlspecialchars($task['taskname'], ENT_QUOTES, 'UTF-8'); ?><br>
                         <strong>カテゴリー:</strong> <?php echo htmlspecialchars($task['category'], ENT_QUOTES, 'UTF-8'); ?><br>
                         <strong>重要度:</strong> <?php echo htmlspecialchars($task['importance'], ENT_QUOTES, 'UTF-8'); ?>
+                        <a href="/taskapp/editTask/<?php echo urlencode($task['taskname']); ?>">編集</a>
+                        <a href="/taskapp/deleteTask/<?php echo urlencode($task['taskname']); ?>" onclick="return confirm('本当に削除しますか？')">削除</a>
                     </li>
                 <?php endforeach; ?>
             </ul>

@@ -3,26 +3,16 @@
 class Model_User extends \Model
 {
 
-    public static function create($post)
+    public static function register_user($username, $password, $email)
     {
-        DB::insert('users')->set(array(
-            'username' => $post['username'],
-            'password' => $post['password'],
-            'email' => $post['email'],
-        ))->execute();
-        // echo Input::post('name1');
+        // FuelPHPの認証システムを使用してユーザーを作成 ←このcreate_userメソッドでどのDB、テーブルに挿入するかの設定でどこだ？
+        Auth::create_user($username, $password, $email, 1);
+        return TRUE;
     }
-//     protected static $_properties = array(
-//         'id',
-//         'username',
-//         'email',
-//         'password_hash',
-//         'created_at',
-//         'updated_at',
-//     );
 
-//     protected static $_table_name = 'users';
+    public static function login_user($username, $password)
+    {
+        return Auth::login($username, $password);
+    }
 
-//     protected static $_created_at = 'created_at';
-//     protected static $_updated_at = 'updated_at';
 }

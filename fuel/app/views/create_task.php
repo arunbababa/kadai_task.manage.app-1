@@ -5,12 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>タスク追加</title>
-    <link rel="stylesheet" href="/assets/css/styleforaddtask.css"> <!-- 必要に応じてCSSをリンク -->
+    <link rel="stylesheet" href="/assets/css/styleforaddtask.css">
+    <!-- Knockout.jsを読み込む -->
+    <script type="text/javascript" src="/assets/js/knockout-3.5.1.js"></script>
 </head>
 <body>
+    <script type="text/javascript" src="knockout-3.0.0.js"></script>
     <div class="container">
-        <h1>タスクを追加する</h1>
-        <form action="/taskapp/addedtask" method="post"> <!-- addedtasksアクションを呼び出す -->
+        <h1>タスクを追加しましょう！</h1>
+        <form action="/taskapp/created_task" method="post">
             <div class="form-group">
                 <label for="taskname">タスク名:</label>
                 <input type="text" id="taskname" name="taskname" required>
@@ -23,12 +26,18 @@
                 <label for="importance">重要度:</label>
                 <select id="importance" name="importance">
                     <!-- ◆以下valueの中身を日本語にする、もしくはlabel属性にする(?) -->
-                    <option value="low">低</option> 
-                    <option value="medium">中</option>
-                    <option value="high">高</option>
+                    <?php
+                    \Config::load('importance', true);
+                    $options = \Config::get('importance');
+                    var_dump($options); // デバッグ用出力←現状ここでnullが返されています。
+                    foreach ($options as $value => $label): ?>
+                        <option value="<?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
-            <button type="submit" class="btn">タスクを追加</button>
+            <button type="submit" class="btn">タスクを追加する</button>
         </form>
     </div>
 </body>
