@@ -44,7 +44,7 @@ class Controller_Taskapp extends Controller
         } else {
             // 認証失敗時はエラーメッセージを表示
             Session::set_flash('error', 'ユーザー名またはパスワードが間違っています。');
-            echo "NO";
+            Response::redirect('taskapp/login');
         }
         
     }

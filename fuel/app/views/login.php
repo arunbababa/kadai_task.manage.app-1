@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="container">
+        
         <h1>ログイン</h1>
 
         <?php if (Session::get_flash('error')): ?>
