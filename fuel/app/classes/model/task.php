@@ -34,27 +34,35 @@ class Model_Task extends \Model
     public static function deleteTask($taskname, $category)
     {
         // タスクを削除
-         // タスク名とカテゴリで削除
-         DB::delete('tasks')
-         ->where('taskname', $taskname)
-         ->where('category', $category)
-         ->execute();
+        // タスク名とカテゴリで削除
+        DB::delete('tasks')
+        ->where('taskname', $taskname)
+        ->where('category', $category)
+        ->execute();
     }
 
     # タスク編集用モデル
-    public static function updateTask($taskname, $category, $importance)
+    public static function update_task($new_taskname, $new_category, $new_importance,$pre_taskname)
     {
-        // タスク名とカテゴリでレコードを特定して更新
+
+        // データベースのタスクを更新
         DB::update('tasks')
-            ->set(array(
-                'taskname' => $taskname,
-                'category' => $category,
-                'importance' => $importance
-            ))
-            ->where('taskname', $taskname) // 元のタスク名で一致するレコードを検索
-            ->where('category', $category) // 元のカテゴリで一致するレコードを検索
+            ->set([
+                'taskname' => $new_taskname,
+                'category' => $new_category,
+                'importance' => $new_importance,
+            ])
+            ->where('taskname', $pre_taskname)
             ->execute();
 
-        return $this->response('タスクが更新されました', 200);
+        //return $this->response('タスクが更新されました', 200);
     }
+
+    # タスク検索用モデル
+    public static function find_task($taskname)
+    {
+        return DB::select()->from('tasks')->where('taskname', $taskname)->execute()->current();
+    }
+
+    
 }

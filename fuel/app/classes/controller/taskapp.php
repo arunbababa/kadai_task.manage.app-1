@@ -97,51 +97,51 @@ class Controller_Taskapp extends Controller
         return View::forge('task_list', ['tasks' => $tasks]); # View::frogeは第二引数を配列で受け取る仕様のため、'tasks'というキーを付与し配列としている
     }
 
-    public function action_editTask($taskname)
+    public function action_edit_task($taskname)
     {
-    // URLからタスク名を取得し、データベースから該当タスクを取得
-    $task = DB::select()->from('tasks')->where('taskname', $taskname)->execute()->current();
 
-    // タスクが見つからない場合
-    if (!$task) {
-        Session::set_flash('error', 'タスクが見つかりませんでした');
-        Response::redirect('taskapp/tasklist');
+         // URLエンコードされたタスク名をデコード
+        $taskname = urldecode($taskname);
+
+        // タスクをデータベースから取得（適切なモデルメソッドを使用）
+        $task = Model_Task::find_task($taskname);
+
+        // // URLからタスク名を取得し、データベースから該当タスクを取得
+        // $task = DB::select()->from('tasks')->where('taskname', $taskname)->execute()->current();
+
+        // タスクが見つからない場合←こんなことある？
+        if (!$task) {
+            Session::set_flash('error', 'タスクが見つかりませんでした');
+            Response::redirect('taskapp/task_list');
     }
 
-    // ビューにタスクデータを渡して編集ページを表示
-    return View::forge('editTask', ['task' => $task]);
+    //ビューにタスクデータを渡して編集ページを表示
+    return View::forge('edit_task', ['task' => $task]);
     }
 
-    public function action_updateTask($original_taskname)
+    public function action_update_task($pre_taskname)//URLの語尾に元のタスク名を付与し、この関数内で変数$pre_tasknameとして使えるようにする
     {
         // POSTデータを取得
         $new_taskname = Input::post('taskname');
-        $category = Input::post('category');
-        $importance = Input::post('importance');
+        $new_category = Input::post('category');
+        $new_importance = Input::post('importance');
 
-        // データベースのタスクを更新
-        DB::update('tasks')
-            ->set([
-                'taskname' => $new_taskname,
-                'category' => $category,
-                'importance' => $importance,
-            ])
-            ->where('taskname', $original_taskname)
-            ->execute();
+        // create
+        Model_Task::update_task($new_taskname,$new_category,$new_importance,$pre_taskname);
 
         // 更新後にタスクリストへリダイレクト
         Session::set_flash('success', 'タスクが更新されました');
-        Response::redirect('taskapp/tasklist');
+        Response::redirect('taskapp/task_list');
     }
 
-    public function action_deleteTask($taskname)
+    public function action_delete_task($taskname)
     {
         // データベースからタスクを削除
         DB::delete('tasks')->where('taskname', $taskname)->execute();
 
         // 削除後にタスクリストへリダイレクト
         Session::set_flash('success', 'タスクが削除されました');
-        Response::redirect('taskapp/tasklist');
+        Response::redirect('taskapp/task_list');
     }
 
         public function action_auth()

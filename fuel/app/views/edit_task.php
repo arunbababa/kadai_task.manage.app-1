@@ -1,4 +1,4 @@
-<form action="/taskapp/updateTask/<?php echo urlencode($task['taskname']); ?>" method="POST">
+<form action="/taskapp/update_task/<?php echo urlencode($task['taskname']); ?>" method="POST">
     <label for="taskname">タスク名:</label>
     <input type="text" name="taskname" id="taskname" value="<?php echo htmlspecialchars($task['taskname'], ENT_QUOTES, 'UTF-8'); ?>" required>
 
