@@ -24,15 +24,26 @@
 
     <!-- タスクリストの表示 -->
     <h2>タスクリスト</h2>
-    <ul data-bind="foreach: tasks"> <!-- Knockout.jsのforeachバインディングを使って、tasks配列に含まれる各タスクをリスト表示 -->
+    <ul data-bind="foreach: tasks">
         <li>
-            <span data-bind="text: taskname"></span> - 
-            <span data-bind="text: category"></span> - 
-            <span data-bind="text: importance"></span>
-            <button data-bind="click: $parent.editTask">編集</button>
-            <button data-bind="click: $parent.removeTask">削除</button>
+            <!-- 編集モードの切り替え: 通常表示と編集フィールド -->
+            <span data-bind="visible: !editing(), text: taskname"></span>
+            <input type="text" data-bind="visible: editing, value: taskname" />
 
-            
+            <span data-bind="visible: !editing(), text: category"></span>
+            <input type="text" data-bind="visible: editing, value: category" />
+
+            <span data-bind="visible: !editing(), text: importance"></span>
+            <select data-bind="visible: editing, value: importance">
+                <option value="低">低</option>
+                <option value="中">中</option>
+                <option value="高">高</option>
+            </select>
+
+            <!-- 編集と保存ボタン -->
+            <button data-bind="click: editTask, visible: !editing()">編集</button>
+            <button data-bind="click: saveTask, visible: editing">保存</button>
+            <button data-bind="click: $parent.removeTask">削除</button>
         </li>
     </ul>
 
@@ -46,10 +57,13 @@
         this.taskname = ko.observable(data.taskname);
         this.category = ko.observable(data.category);
         this.importance = ko.observable(data.importance);
+        this.editing = ko.observable(false);  // 編集モードのフラグ
     }
 
     function TaskViewModel() {
     var self = this;
+    console.log("Knockout.jsバインドが初期化されました");
+    
     // 初期タスクリストのデータをTaskオブジェクトに変換
     var mappedTasks = <?= json_encode($tasks); ?>.map(function(task) {
         return new Task(task);
@@ -63,13 +77,22 @@
 
     // タスクを追加するメソッド
     self.addTask = function() {
+
+        console.log("addTaskメソッドが呼ばれました");
+
         var newTask = {
             taskname: self.newTaskName(),
             category: self.newCategory(),
             importance: self.newImportance()
+
+            
         };
 
-        // サーバーにタスクを送信
+        console.log("新しいタスクをリストに追加します:", newTask);
+        // フロントエンドでリストに追加
+        // self.tasks.push(new Task(newTask));
+
+        // サーバーにタスクを保存する処理を呼び出す（createコントローラ)
         fetch('/taskapp/create', {
             method: 'POST',
             headers: {
@@ -80,7 +103,7 @@
         .then(data => {
             if (data.status === 'success') {
                 console.log(data.message);  // 成功メッセージを表示
-                self.tasks.push(new Task(newTask)); // フロントでリストに追加
+                self.tasks.push(new Task(newTask));
             } else {
                 console.log(data.message);  // エラーメッセージを表示
             }
@@ -90,6 +113,8 @@
         self.newTaskName('');
         self.newCategory('');
         self.newImportance('中');
+
+        console.log("現在のタスクリスト:", self.tasks());
     };
 
     // タスクを削除するメソッド
@@ -114,7 +139,42 @@
         .catch(error => {
             console.error('Error:', error);
         });
+            };
+        }
+
+    // タスクを編集するメソッド
+    self.editTask = function(task) {
+
+        console.log("editTaskメソッドが呼ばれました:", task);
+
+        task.editing(true);  // 編集モードに切り替え
+};
+
+self.saveTask = function(task) {
+    task.editing(false);  // 編集モードを解除
+
+    // サーバーに更新内容を送信
+    var updatedTask = {
+        id: task.id,  // タスクのIDも一緒に送信
+        taskname: task.taskname(),
+        category: task.category(),
+        importance: task.importance()
     };
+
+    fetch('/taskapp/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedTask)
+    }).then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log(data.message);  // 成功メッセージ
+        } else {
+            console.log(data.message);  // エラーメッセージ
+        }
+    });
 }
 
         ko.applyBindings(new TaskViewModel());

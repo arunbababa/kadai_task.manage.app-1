@@ -42,7 +42,7 @@ class Model_Task extends \Model
     }
 
     # タスク編集用モデル
-    public static function update_task($new_taskname, $new_category, $new_importance,$pre_taskname)
+    public static function updateTask($new_taskname, $new_category, $new_importance,$pre_taskname)
     {
 
         // データベースのタスクを更新

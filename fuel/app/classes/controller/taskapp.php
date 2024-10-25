@@ -49,7 +49,6 @@ class Controller_Taskapp extends Controller
         
     }
 
-
     public function action_user_register()
     {
         return View::forge('user_register'); 
