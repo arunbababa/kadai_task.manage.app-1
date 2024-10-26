@@ -12,7 +12,7 @@ class Model_Task extends \Model
         ))->execute();
     }
 
-    public static function taskList() # これはどっちでも使ってるわ
+    public static function task_list() # これはどっちでも使ってるわ
     {
         return DB::select()->from('tasks')->execute()->as_array();
     }
@@ -20,7 +20,7 @@ class Model_Task extends \Model
     # knockout.js用のメソッド
 
     # タスク追加用モデル
-    public static function addTask($taskname, $category, $importance)
+    public static function add_task($taskname, $category, $importance)
     {
         DB::insert('tasks')->set(array(
             'taskname' => $taskname,
@@ -31,7 +31,7 @@ class Model_Task extends \Model
 
 
     # タスク削除用モデル
-    public static function deleteTask($taskname, $category)
+    public static function delete_task($taskname, $category)
     {
         // タスクを削除
         // タスク名とカテゴリで削除
@@ -42,7 +42,7 @@ class Model_Task extends \Model
     }
 
     # タスク編集用モデル
-    public static function updateTask($new_taskname, $new_category, $new_importance,$pre_taskname)
+    public static function update_task($new_taskname, $new_category, $new_importance,$pre_taskname)
     {
 
         // データベースのタスクを更新
