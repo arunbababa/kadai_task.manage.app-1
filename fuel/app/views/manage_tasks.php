@@ -55,6 +55,7 @@
 
     function Task(data) {
         this.taskname = ko.observable(data.taskname);
+        this.original_taskname = data.taskname;  // 編集前のタスク名を保持
         this.category = ko.observable(data.category);
         this.importance = ko.observable(data.importance);
         this.editing = ko.observable(false);  // 編集モードのフラグ
@@ -155,7 +156,7 @@ self.saveTask = function(task) {
 
     // サーバーに更新内容を送信
     var updatedTask = {
-        id: task.id,  // タスクのIDも一緒に送信
+        pre_taskname: task.original_taskname, 
         taskname: task.taskname(),
         category: task.category(),
         importance: task.importance()

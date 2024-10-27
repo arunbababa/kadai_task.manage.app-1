@@ -40,7 +40,7 @@ class Controller_Taskapp extends Controller
         // 認証処理
         if (Auth::login($username, $password)) {
             // 認証成功時はレッツクリエイトタスク画面やタスクページにリダイレクト
-            Response::redirect('taskapp/create_task');
+            Response::redirect('taskapp/manage_tasks');
         } else {
             // 認証失敗時はエラーメッセージを表示
             Session::set_flash('error', 'ユーザー名またはパスワードが間違っています。');
@@ -161,7 +161,7 @@ class Controller_Taskapp extends Controller
         // exit;  // デバッグ用に一時的に処理を停止
         
         // タスクデータをビューに渡す
-        return View::forge('manageTasks', ['tasks' => $tasks]);
+        return View::forge('manage_tasks', ['tasks' => $tasks]);
     }
 
     public function action_create()
@@ -202,7 +202,7 @@ class Controller_Taskapp extends Controller
     {
         // POSTデータを取得
         $post = json_decode(file_get_contents('php://input'), true);
-        Model_Task::updateTask($post['taskname'], $post['category'],$post['importance']);
+        Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname']);
     }
 
 
