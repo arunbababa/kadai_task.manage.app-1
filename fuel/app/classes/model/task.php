@@ -2,22 +2,11 @@
 
 class Model_Task extends \Model
 {
-    # knockout.jsないほう用のメソッド
-    public static function creat_task($taskname, $category, $importance)
-    {
-        DB::insert('tasks')->set(array(
-            'taskname' => $taskname,
-            'category' => $category,
-            'importance' => $importance,
-        ))->execute();
-    }
-
-    public static function taskList() # これはどっちでも使ってるわ
+    # タスクリスト取得用モデル
+    public static function taskList()
     {
         return DB::select()->from('tasks')->execute()->as_array();
     }
-
-    # knockout.js用のメソッド
 
     # タスク追加用モデル
     public static function addTask($taskname, $category, $importance)
@@ -29,12 +18,10 @@ class Model_Task extends \Model
         ))->execute();
     }
 
-
     # タスク削除用モデル
     public static function deleteTask($taskname, $category)
     {
-        // タスクを削除
-        // タスク名とカテゴリで削除
+        // タスクを、タスク名とカテゴリを指定して削除
         DB::delete('tasks')
         ->where('taskname', $taskname)
         ->where('category', $category)
@@ -44,8 +31,7 @@ class Model_Task extends \Model
     # タスク編集用モデル
     public static function updateTask($new_taskname, $new_category, $new_importance,$pre_taskname)
     {
-
-        // データベースのタスクを更新
+        // 新たなタスク名、カテゴリ、重要度をセット
         DB::update('tasks')
             ->set([
                 'taskname' => $new_taskname,
@@ -54,15 +40,5 @@ class Model_Task extends \Model
             ])
             ->where('taskname', $pre_taskname)
             ->execute();
-
-        //return $this->response('タスクが更新されました', 200);
     }
-
-    # タスク検索用モデル
-    public static function find_task($taskname)
-    {
-        return DB::select()->from('tasks')->where('taskname', $taskname)->execute()->current();
-    }
-
-    
 }

@@ -15,7 +15,7 @@
             <p class="error-message"><?php echo Session::get_flash('error'); ?></p>
         <?php endif; ?>
 
-        <form action="/taskapp/login_check" method="post">
+        <form action="/taskApp/login" method="post">
             <div class="form-group">
                 <label for="username">ユーザー名:</label>
                 <input type="text" id="username" name="username" required>
@@ -27,7 +27,7 @@
             <button type="submit" class="btn">ログイン</button>
         </form>
 
-        <p><a href="/taskapp/user_register">まだ登録していませんか？新規登録はこちら</a></p>
+        <p><a href="/taskApp/userRegister">まだ登録していませんか？新規登録はこちら</a></p>
     </div>
 </body>
 </html>

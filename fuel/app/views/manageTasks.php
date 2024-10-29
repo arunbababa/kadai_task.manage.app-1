@@ -7,17 +7,22 @@
 </head>
 <body>
 
+    <?php if (Session::get_flash('success')): ?>
+        <p><?php echo Session::get_flash('success'); ?></p>
+    <?php endif; ?>
+
     <h1>タスク管理</h1>
 
     <!-- タスク追加フォーム -->
     <h2>タスクを追加</h2>
-    <form data-bind="submit: addTask"> <!-- Knockout.jsのバインディングを使って、フォームの送信（submit）時にaddTaskメソッドが呼ばれる -->
-        <input type="text" placeholder="タスク名" data-bind="value: newTaskName" required /> <!-- テキストボックスの入力内容が、newTaskNameという変数にリアルタイムで反映される、入力したタスク名が、Knockout.jsによって自動的にnewTaskNameに保存される -->
-        <input type="text" placeholder="カテゴリ" data-bind="value: newCategory" required /> <!-- requiredは入力必須の意味　-->
+    <form data-bind="submit: addTask"> 
+        <input type="text" placeholder="タスク名" data-bind="value: newTaskName" required /> 
+        <input type="text" placeholder="カテゴリ" data-bind="value: newCategory" required /> 
         <select data-bind="value: newImportance">
-            <option value="低">低</option>
-            <option value="中">中</option>
-            <option value="高">高</option>
+            <option value=""><?= $importanceOptions['default'] ?></option> <!-- デフォルトのラベル -->
+            <?php foreach ($importanceOptions['values'] as $value): ?>  <!-- PHPで設定ファイルからオプションを動的に生成 -->
+                <option value="<?= $value ?>"><?= $value ?></option>
+            <?php endforeach; ?>
         </select>
         <button type="submit">追加</button> <!-- これを押すとaddTaskメソッドが呼ばれて、タスクが追加されます。 -->
     </form>
@@ -62,19 +67,22 @@
     }
 
     function TaskViewModel() {
-    var self = this;
-    console.log("Knockout.jsバインドが初期化されました");
-    
-    // 初期タスクリストのデータをTaskオブジェクトに変換
-    var mappedTasks = <?= json_encode($tasks); ?>.map(function(task) {
-        return new Task(task);
-    });
-    
-    self.tasks = ko.observableArray(mappedTasks); // 初期タスクリスト
-    
-    self.newTaskName = ko.observable('');
-    self.newCategory = ko.observable('');
-    self.newImportance = ko.observable('中');
+        var self = this;
+        console.log("Knockout.jsバインドが初期化されました");
+        
+        // 初期タスクリストのデータをTaskオブジェクトに変換
+        var mappedTasks = <?= json_encode($tasks); ?>.map(function(task) {
+            return new Task(task);
+        });
+        
+        self.tasks = ko.observableArray(mappedTasks); // 初期タスクリスト
+        
+        self.newTaskName = ko.observable('');
+        self.newCategory = ko.observable('');
+        self.newImportance = ko.observable('');
+        // Configから読み込んだ重要度の選択肢を渡す
+        self.importanceOptions = <?= json_encode($importanceOptions['values']); ?>;
+
 
     // タスクを追加するメソッド
     self.addTask = function() {
@@ -94,7 +102,7 @@
         // self.tasks.push(new Task(newTask));
 
         // サーバーにタスクを保存する処理を呼び出す（createコントローラ)
-        fetch('/taskapp/create', {
+        fetch('/taskApp/createTask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -121,7 +129,7 @@
     // タスクを削除するメソッド
     self.removeTask = function(task) {
         // サーバーに削除リクエストを送信
-        fetch('/taskapp/delete', {
+        fetch('/taskapp/deleteTask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -143,7 +151,7 @@
             };
         }
 
-    // タスクを編集するメソッド
+    // タスクを更新するメソッド
     self.editTask = function(task) {
 
         console.log("editTaskメソッドが呼ばれました:", task);
@@ -162,7 +170,7 @@ self.saveTask = function(task) {
         importance: task.importance()
     };
 
-    fetch('/taskapp/update', {
+    fetch('/taskApp/updateTask', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

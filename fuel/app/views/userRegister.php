@@ -7,9 +7,12 @@
     <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
+    <?php if (Session::get_flash('error')): ?>
+        <p><?php echo Session::get_flash('error'); ?></p>
+    <?php endif; ?>
     <div class="form-container">
         <h1>登録する</h1>
-        <form method="POST" action="/taskapp/LetsCreateTask">
+        <form method="POST" action="/taskApp/userRegister">
             <div class="form-group"> <!-- これいる？フォーム全体にform-containerあるしやるとしたらdiv class=form-usernameとかで個々のdiv作るべきじゃない？ -->
                 <label for="username">ユーザーネーム：</label>
                 <input type="text" id="username" name="username">
