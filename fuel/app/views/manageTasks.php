@@ -113,15 +113,14 @@
             if (data.status === 'success') {
                 console.log(data.message);  // 成功メッセージを表示
                 self.tasks.push(new Task(newTask));
+                // 入力フィールドをリセット
+                self.newTaskName('');
+                self.newCategory('');
+                self.newImportance('中');
             } else {
                 console.log(data.message);  // エラーメッセージを表示
             }
         });
-
-        // 入力フィールドをリセット
-        self.newTaskName('');
-        self.newCategory('');
-        self.newImportance('中');
 
         console.log("現在のタスクリスト:", self.tasks());
     };
