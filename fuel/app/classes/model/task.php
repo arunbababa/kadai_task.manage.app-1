@@ -22,17 +22,18 @@ class Model_Task extends \Model
     public static function deleteTask($taskname, $category)
     {
         // タスクを、タスク名とカテゴリを指定して削除
-        DB::delete('tasks')
-        ->where('taskname', $taskname)
-        ->where('category', $category)
-        ->execute();
+        $affected_rows = DB::delete('tasks')
+                            ->where('taskname', $taskname)
+                            ->where('category', $category)
+                            ->execute();
+        return $affected_rows > 0;
     }
 
     # タスク編集用モデル
     public static function updateTask($new_taskname, $new_category, $new_importance,$pre_taskname)
     {
         // 新たなタスク名、カテゴリ、重要度をセット
-        DB::update('tasks')
+        $affected_rows = DB::update('tasks')
             ->set([
                 'taskname' => $new_taskname,
                 'category' => $new_category,
@@ -40,5 +41,6 @@ class Model_Task extends \Model
             ])
             ->where('taskname', $pre_taskname)
             ->execute();
+        return $affected_rows > 0;
     }
 }
