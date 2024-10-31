@@ -61,10 +61,27 @@ class Controller_Taskapp extends Controller
             $email = Input::post('email');
             $password = Input::post('password');
 
+            // 簡単なバリデーション
+            if (empty($username) || empty($email) || empty($password)) {
+                Session::set_flash('error', '全ての項目を入力してください。');
+                return Response::forge(View::forge('userRegister'));
+            }
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                Session::set_flash('error', '正しいメールアドレスを入力してください。');
+                return Response::forge(View::forge('userRegister'));
+            }
+
+            if (strlen($password) < 8) {
+                Session::set_flash('error', 'パスワードは8文字以上にしてください。');
+                return Response::forge(View::forge('userRegister'));
+            }
+
             // 新規ユーザーの登録処理
             try 
             {
-                if (Model_User::register_user($username, $password, $email)) 
+                $user_id = Auth::create_user($username, $password, $email);
+                if ($user_id) 
                 {
                     // 登録成功時はログイン画面にリダイレクト
                     Session::set_flash('success', 'ユーザー登録が完了しました。');
@@ -97,11 +114,11 @@ class Controller_Taskapp extends Controller
         ]);
     }
 
-    public function action_createTask()
+    public function post_createTask()
     {
         try {
             // POSTデータを取得
-            $post = json_decode(file_get_contents('php://input'), true);
+            $post = \Input::json();
     
             // 必要なデータが存在するか確認
             if (!empty($post['taskname']) && !empty($post['category']) && !empty($post['importance'])) {
@@ -124,17 +141,28 @@ class Controller_Taskapp extends Controller
         }
     }
 
-    public function action_deleteTask() # あれ引数入れるとどうなるんだっけ？→次のようにルーティングされてしまう！/taskapp/delete/{パラメータ}
+    public function post_deleteTask() # あれ引数入れるとどうなるんだっけ？→次のようにルーティングされてしまう！/taskapp/delete/{パラメータ}
     {
         // POSTリクエストでタスク名とカテゴリを取得
-        $post = json_decode(file_get_contents('php://input'), true);
-        Model_Task::deleteTask($post['taskname'], $post['category']);
+        $post = \Input::json();
+        $result = Model_Task::deleteTask($post['taskname'], $post['category']);
+        // 成功または失敗の結果に応じてレスポンスを返す
+        if ($result) 
+        {
+            return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
+                            ->set_header('Content-Type', 'application/json');
+        } else 
+        {
+            return \Response::forge(json_encode(['status' => false, 'message' => '削除するタスクが見つかりませんでした']), 404)
+                            ->set_header('Content-Type', 'application/json');
+        }
     }
 
-    public function action_updateTask()
+    public function post_updateTask()
     {
         // POSTデータを取得
-        $post = json_decode(file_get_contents('php://input'), true);
+        $post = \Input::json();
         Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname']);
+
     }
 }
