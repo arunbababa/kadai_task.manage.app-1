@@ -141,7 +141,7 @@ class Controller_Taskapp extends Controller
         }
     }
 
-    public function post_deleteTask() # あれ引数入れるとどうなるんだっけ？→次のようにルーティングされてしまう！/taskapp/delete/{パラメータ}
+    public function post_deleteTask() 
     {
         // POSTリクエストでタスク名とカテゴリを取得
         $post = \Input::json();
@@ -162,7 +162,15 @@ class Controller_Taskapp extends Controller
     {
         // POSTデータを取得
         $post = \Input::json();
-        Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname']);
-
+        $result = Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname']);
+        if ($result) 
+        {
+            return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
+                            ->set_header('Content-Type', 'application/json');
+        } else 
+        {
+            return \Response::forge(json_encode(['status' => false, 'message' => '削除するタスクが見つかりませんでした']), 404)
+                            ->set_header('Content-Type', 'application/json');
+        }
     }
 }
