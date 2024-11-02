@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
+    <meta name="csrf-token" content="<?= \Security::fetch_token(); ?> charset="UTF-8">
     <title>タスク管理</title>
     <script src="https://cdn.jsdelivr.net/npm/knockout@3.5.1/build/output/knockout-latest.js"></script>
 </head>
@@ -89,7 +89,9 @@
 
         console.log("addTaskメソッドが呼ばれました");
 
-        var newTask = {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        const newTask = {
             taskname: self.newTaskName(),
             category: self.newCategory(),
             importance: self.newImportance()
@@ -113,15 +115,14 @@
             if (data.status === 'success') {
                 console.log(data.message);  // 成功メッセージを表示
                 self.tasks.push(new Task(newTask));
+                // 入力フィールドをリセット
+                self.newTaskName('');
+                self.newCategory('');
+                self.newImportance('中');
             } else {
                 console.log(data.message);  // エラーメッセージを表示
             }
         });
-
-        // 入力フィールドをリセット
-        self.newTaskName('');
-        self.newCategory('');
-        self.newImportance('中');
 
         console.log("現在のタスクリスト:", self.tasks());
     };
