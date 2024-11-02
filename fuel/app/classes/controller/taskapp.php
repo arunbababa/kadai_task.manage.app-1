@@ -10,7 +10,7 @@ class Controller_Taskapp extends Controller
         parent::before();
 
         // 認証不要のアクションを設定
-        $unrestricted_actions = ['userRegister','login','manageTasks']; //manageTasksは仮置き（js練習中）
+        $unrestricted_actions = ['userRegister','login',]; //manageTasksは仮置き（js練習中）
 
         // 現在のアクションを取得
         $current_action = \Request::active()->action;
@@ -80,13 +80,16 @@ class Controller_Taskapp extends Controller
             // 新規ユーザーの登録処理
             try 
             {
-                $user_id = Auth::create_user($username, $password, $email);
-                if ($user_id) 
-                {
-                    // 登録成功時はログイン画面にリダイレクト
-                    Session::set_flash('success', 'ユーザー登録が完了しました。');
-                    Response::redirect('taskApp/manageTasks');
-                }
+                // 新しいユーザを登録する
+                Auth::create_user($username, $password, $email);
+
+                // 前回のユーザーセッションが残る可能性があるため、明示的にログアウト
+                Auth::logout();
+                
+                // 登録成功時はログイン画面にリダイレクト
+                Session::set_flash('success', 'ユーザー登録が完了しました。');
+                Response::redirect('taskApp/login');
+                
             } catch (Exception $e) 
             {
                 // 登録に失敗した場合はエラーメッセージを表示
@@ -100,8 +103,11 @@ class Controller_Taskapp extends Controller
 
     public function action_manageTasks()
     {
+        // 現在のユーザーIDを取得
+        list(, $user_id) = \Auth::get_user_id();
+
         // タスクリストを取得
-        $tasks = Model_Task::taskList();
+        $tasks = Model_Task::taskList($user_id);
 
         // 重要度の選択肢を取得
         Config::load('importance', true);
@@ -119,11 +125,14 @@ class Controller_Taskapp extends Controller
         try {
             // POSTデータを取得
             $post = \Input::json();
+
+            // 現在のユーザーIDを取得
+            list(, $user_id) = \Auth::get_user_id();
     
             // 必要なデータが存在するか確認
             if (!empty($post['taskname']) && !empty($post['category']) && !empty($post['importance'])) {
                 // タスクを追加するためにModel_Taskを呼び出し
-                Model_Task::addTask($post['taskname'], $post['category'], $post['importance']);
+                Model_Task::addTask($post['taskname'], $post['category'], $post['importance'],$user_id);
     
                 // 成功メッセージを返す
                 return Response::forge(json_encode(['status' => 'success', 'message' => 'タスクが追加されました']), 200)
@@ -145,7 +154,11 @@ class Controller_Taskapp extends Controller
     {
         // POSTリクエストでタスク名とカテゴリを取得
         $post = \Input::json();
-        $result = Model_Task::deleteTask($post['taskname'], $post['category']);
+
+        // 現在のユーザーIDを取得
+        list(, $user_id) = \Auth::get_user_id();
+
+        $result = Model_Task::deleteTask($post['taskname'], $post['category'],$user_id);
         // 成功または失敗の結果に応じてレスポンスを返す
         if ($result) 
         {
@@ -162,7 +175,11 @@ class Controller_Taskapp extends Controller
     {
         // POSTデータを取得
         $post = \Input::json();
-        $result = Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname']);
+
+        // 現在のユーザーIDを取得
+        list(, $user_id) = \Auth::get_user_id();
+
+        $result = Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname'],$user_id);
         if ($result) 
         {
             return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
