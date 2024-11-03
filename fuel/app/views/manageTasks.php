@@ -67,11 +67,11 @@
     }
 
     function TaskViewModel() {
-        var self = this;
+        const self = this;
         console.log("Knockout.jsバインドが初期化されました");
         
         // 初期タスクリストのデータをTaskオブジェクトに変換
-        var mappedTasks = <?= json_encode($tasks); ?>.map(function(task) {
+        const mappedTasks = <?= json_encode($tasks); ?>.map(function(task) {
             return new Task(task);
         });
         
