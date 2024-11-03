@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta name="csrf-token" content="<?= \Security::fetch_token(); ?> charset="UTF-8">
     <title>タスク管理</title>
+    <meta name="fuel_csrf_token" content="<?= $csrf_token; ?>">
     <script src="https://cdn.jsdelivr.net/npm/knockout@3.5.1/build/output/knockout-latest.js"></script>
 </head>
 <body>
@@ -89,14 +89,13 @@
 
         console.log("addTaskメソッドが呼ばれました");
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        // CSRFトークンをメタタグから取得
+        const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
 
         const newTask = {
             taskname: self.newTaskName(),
             category: self.newCategory(),
             importance: self.newImportance()
-
-            
         };
 
         console.log("新しいタスクをリストに追加します:", newTask);
@@ -107,7 +106,8 @@
         fetch('/taskApp/createTask', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken 
             },
             body: JSON.stringify(newTask)
         }).then(response => response.json())
@@ -129,11 +129,15 @@
 
     // タスクを削除するメソッド
     self.removeTask = function(task) {
+
+        const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
+        
         // サーバーに削除リクエストを送信
         fetch('/taskapp/deleteTask', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken // CSRFトークンを追加
             },
             body: JSON.stringify({
                 taskname: task.taskname(),
@@ -163,8 +167,11 @@
 self.saveTask = function(task) {
     task.editing(false);  // 編集モードを解除
 
+    // CSRFトークンをメタタグから取得
+    const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
+
     // サーバーに更新内容を送信
-    var updatedTask = {
+    const updatedTask = {
         pre_taskname: task.original_taskname, 
         taskname: task.taskname(),
         category: task.category(),
@@ -174,7 +181,8 @@ self.saveTask = function(task) {
     fetch('/taskApp/updateTask', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken  // CSRFトークンを追加
         },
         body: JSON.stringify(updatedTask)
     }).then(response => response.json())

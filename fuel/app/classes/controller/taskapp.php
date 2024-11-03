@@ -10,7 +10,7 @@ class Controller_Taskapp extends Controller
         parent::before();
 
         // 認証不要のアクションを設定
-        $unrestricted_actions = ['userRegister','login',]; //manageTasksは仮置き（js練習中）
+        $unrestricted_actions = ['userRegister','login']; //manageTasksは仮置き（js練習中）
 
         // 現在のアクションを取得
         $current_action = \Request::active()->action;
@@ -102,12 +102,20 @@ class Controller_Taskapp extends Controller
     }
 
     public function action_manageTasks()
+
+
     {
         // 現在のユーザーIDを取得
         list(, $user_id) = \Auth::get_user_id();
 
         // タスクリストを取得
         $tasks = Model_Task::taskList($user_id);
+
+        // セッションに保存されたトークンがあれば取得し、なければ新規作成
+        if (!$csrf_token = Session::get('csrf_token')) {
+            $csrf_token = Security::fetch_token();
+            Session::set('csrf_token', $csrf_token); // セッションにトークンを保存
+        }
 
         // 重要度の選択肢を取得
         Config::load('importance', true);
@@ -116,15 +124,29 @@ class Controller_Taskapp extends Controller
         // タスクの内容ををビューに渡す
         return View::forge('manageTasks', [
             'tasks' => $tasks,
-            'importanceOptions' => $importanceOptions
-        ]);
+            'importanceOptions' => $importanceOptions,
+            'csrf_token' => $csrf_token
+        ]); // 配列の、に注意
     }
 
     public function post_createTask()
     {
+
+
         try {
+
             // POSTデータを取得
             $post = \Input::json();
+
+            // セッションからCSRFトークンを取得し、送信されたトークンと照合
+            $expected_token = Session::get('csrf_token');
+            $csrf_token = \Input::headers('X-CSRF-Token');
+
+            if ($csrf_token !== $expected_token) {
+                Log::error('CSRFトークンが一致しませんでした。送信されたトークン: ' . $csrf_token);
+                return Response::forge(json_encode(['status' => 'error', 'message' => 'CSRFトークンが無効です']), 400)
+                                ->set_header('Content-Type', 'application/json');
+            }
 
             // 現在のユーザーIDを取得
             list(, $user_id) = \Auth::get_user_id();
@@ -152,41 +174,76 @@ class Controller_Taskapp extends Controller
 
     public function post_deleteTask() 
     {
-        // POSTリクエストでタスク名とカテゴリを取得
-        $post = \Input::json();
-
-        // 現在のユーザーIDを取得
-        list(, $user_id) = \Auth::get_user_id();
-
-        $result = Model_Task::deleteTask($post['taskname'], $post['category'],$user_id);
-        // 成功または失敗の結果に応じてレスポンスを返す
-        if ($result) 
-        {
-            return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
-                            ->set_header('Content-Type', 'application/json');
-        } else 
-        {
-            return \Response::forge(json_encode(['status' => false, 'message' => '削除するタスクが見つかりませんでした']), 404)
+        try {
+            // POSTデータを取得
+            $post = \Input::json();
+    
+            // セッションからCSRFトークンを取得し、送信されたトークンと照合
+            $csrf_token = \Input::headers('X-CSRF-Token');
+            $expected_token = Session::get('csrf_token');
+    
+            if ($csrf_token !== $expected_token) {
+                Log::error('CSRFトークンが一致しません。送信されたトークン: ' . $csrf_token);
+                return \Response::forge(json_encode(['status' => false, 'message' => 'CSRFトークンが無効です']), 400)
+                                ->set_header('Content-Type', 'application/json');
+            }
+    
+            // 現在のユーザーIDを取得
+            list(, $user_id) = \Auth::get_user_id();
+    
+            // タスク削除処理を実行
+            $result = Model_Task::deleteTask($post['taskname'], $post['category'], $user_id);
+    
+            // 成功または失敗の結果に応じてレスポンスを返す
+            if ($result) {
+                return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
+                                ->set_header('Content-Type', 'application/json');
+            } else {
+                return \Response::forge(json_encode(['status' => false, 'message' => '削除するタスクが見つかりませんでした']), 404)
+                                ->set_header('Content-Type', 'application/json');
+            }
+        } catch (Exception $e) {
+            // エラーログを記録し、サーバーエラーレスポンスを返す
+            Log::error('タスク削除時にエラーが発生: ' . $e->getMessage());
+            return \Response::forge(json_encode(['status' => false, 'message' => 'サーバーでエラーが発生しました']), 500)
                             ->set_header('Content-Type', 'application/json');
         }
     }
 
     public function post_updateTask()
     {
-        // POSTデータを取得
-        $post = \Input::json();
-
-        // 現在のユーザーIDを取得
-        list(, $user_id) = \Auth::get_user_id();
-
-        $result = Model_Task::updateTask($post['taskname'], $post['category'],$post['importance'] ,$post['pre_taskname'],$user_id);
-        if ($result) 
-        {
-            return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
-                            ->set_header('Content-Type', 'application/json');
-        } else 
-        {
-            return \Response::forge(json_encode(['status' => false, 'message' => '削除するタスクが見つかりませんでした']), 404)
+        try {
+            // POSTデータを取得
+            $post = \Input::json();
+    
+            // セッションからCSRFトークンを取得し、送信されたトークンと照合
+            $csrf_token = \Input::headers('X-CSRF-Token');
+            $expected_token = Session::get('csrf_token');
+    
+            if ($csrf_token !== $expected_token) {
+                Log::error('CSRFトークンが一致しません。送信されたトークン: ' . $csrf_token);
+                return \Response::forge(json_encode(['status' => false, 'message' => 'CSRFトークンが無効です']), 400)
+                                ->set_header('Content-Type', 'application/json');
+            }
+    
+            // 現在のユーザーIDを取得
+            list(, $user_id) = \Auth::get_user_id();
+    
+            // タスクの編集処理
+            $result = Model_Task::updateTask($post['taskname'], $post['category'], $post['importance'], $post['pre_taskname'], $user_id);
+    
+            // 結果に応じてレスポンスを返す
+            if ($result) {
+                return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが更新されました']), 200)
+                                ->set_header('Content-Type', 'application/json');
+            } else {
+                return \Response::forge(json_encode(['status' => false, 'message' => '更新するタスクが見つかりませんでした']), 404)
+                                ->set_header('Content-Type', 'application/json');
+            }
+        } catch (Exception $e) {
+            // エラーログを記録し、サーバーエラーレスポンスを返す
+            Log::error('タスク更新時にエラーが発生: ' . $e->getMessage());
+            return \Response::forge(json_encode(['status' => false, 'message' => 'サーバーでエラーが発生しました']), 500)
                             ->set_header('Content-Type', 'application/json');
         }
     }
