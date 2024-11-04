@@ -7,8 +7,21 @@
 </head>
 <body>
 
+    <!-- 以下セッション管理 -->
+
+    <!-- ログインできたかどうかの確認のセッション -->
     <?php if (Session::get_flash('success')): ?>
         <p><?php echo Session::get_flash('success'); ?></p>
+    <?php endif; ?>
+
+    <!-- タスク追加できたかどうかの確認のセッション -->
+    <?php if (Session::get_flash('add_task')): ?>
+        <p><?php echo Session::get_flash('add_task'); ?></p>
+    <?php endif; ?>
+
+    <!-- タスク削除できたかどうかの確認のセッション -->
+     <?php if (Session::get_flash('delete_task')): ?>
+        <p><?php echo Session::get_flash('delete_task'); ?></p>
     <?php endif; ?>
 
     <h1>タスク管理</h1>
