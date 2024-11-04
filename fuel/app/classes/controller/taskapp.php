@@ -156,11 +156,7 @@ class Controller_Taskapp extends Controller
                 // タスクを追加するためにModel_Taskを呼び出し
                 Model_Task::addTask($post['taskname'], $post['category'], $post['importance'],$user_id);
 
-                // タスク追加出来たことをviewで表示するため、セッションをセットする
-                Session::set_flash('add_task',"タスクが追加されました");
-    
-                // 成功メッセージを返す
-                return Response::forge(json_encode(['status' => 'success', 'message' => 'タスクが追加されました']), 200)
+                return Response::forge(json_encode(['status' => 'true', 'message' => 'タスクが追加されました']), 200)
                                 ->set_header('Content-Type', 'application/json');
             } else {
                 // エラーメッセージを返す
@@ -196,13 +192,10 @@ class Controller_Taskapp extends Controller
     
             // タスク削除処理を実行
             $result = Model_Task::deleteTask($post['taskname'], $post['category'], $user_id);
-    
-            // タスク追加出来たことをviewで表示するため、セッションをセットする
-            Session::set_flash('delete_task',"タスクが削除されました");
 
             // 成功または失敗の結果に応じてレスポンスを返す
             if ($result) {
-                return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが削除されました']), 200)
+                return \Response::forge(json_encode(['status' => 'true', 'message' => 'タスクが削除されました']), 200)
                                 ->set_header('Content-Type', 'application/json');
             } else {
                 return \Response::forge(json_encode(['status' => false, 'message' => '削除するタスクが見つかりませんでした']), 404)
@@ -240,7 +233,7 @@ class Controller_Taskapp extends Controller
     
             // 結果に応じてレスポンスを返す
             if ($result) {
-                return \Response::forge(json_encode(['status' => true, 'message' => 'タスクが更新されました']), 200)
+                return \Response::forge(json_encode(['status' => 'true', 'message' => 'タスクが更新されました']), 200)
                                 ->set_header('Content-Type', 'application/json');
             } else {
                 return \Response::forge(json_encode(['status' => false, 'message' => '更新するタスクが見つかりませんでした']), 404)

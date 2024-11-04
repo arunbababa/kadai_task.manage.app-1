@@ -7,22 +7,13 @@
 </head>
 <body>
 
-    <!-- 以下セッション管理 -->
-
     <!-- ログインできたかどうかの確認のセッション -->
     <?php if (Session::get_flash('success')): ?>
         <p><?php echo Session::get_flash('success'); ?></p>
     <?php endif; ?>
 
-    <!-- タスク追加できたかどうかの確認のセッション -->
-    <?php if (Session::get_flash('add_task')): ?>
-        <p><?php echo Session::get_flash('add_task'); ?></p>
-    <?php endif; ?>
-
-    <!-- タスク削除できたかどうかの確認のセッション -->
-     <?php if (Session::get_flash('delete_task')): ?>
-        <p><?php echo Session::get_flash('delete_task'); ?></p>
-    <?php endif; ?>
+    <!-- フラッシュメッセージの表示場所 -->
+    <div id="flash-messages"></div>
 
     <h1>タスク管理</h1>
 
@@ -70,6 +61,19 @@
     </script>
 
     <script>
+
+    function displayFlashMessage(message, type = 'success') {
+        const flashContainer = document.getElementById('flash-messages');
+        const flashMessage = document.createElement('p');
+        flashMessage.textContent = message;
+        flashMessage.className = type;  // メッセージの種類に応じたクラスを設定（スタイリング用）
+        flashContainer.appendChild(flashMessage);
+        // 一定時間後にフラッシュメッセージを自動で消去
+        setTimeout(() => {
+            flashMessage.remove();
+        }, 5000);  // 5秒後にメッセージを削除
+    }
+
 
     function Task(data) {
         this.taskname = ko.observable(data.taskname);
@@ -125,8 +129,10 @@
             body: JSON.stringify(newTask)
         }).then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
+            if (data.status === 'true') {
                 console.log(data.message);  // 成功メッセージを表示
+                // 成功メッセージをフロントエンドで表示
+                displayFlashMessage(data.message, 'success');
                 self.tasks.push(new Task(newTask));
                 // 入力フィールドをリセット
                 self.newTaskName('');
@@ -157,11 +163,16 @@
                 category: task.category()
             })
         })
-        .then(response => response.text())  // テキストレスポンスを処理
+        .then(response => response.json())  // テキストレスポンスを処理
         .then(data => {
+            if (data.status === 'true') {
             console.log(data);  // 成功メッセージを表示
+            displayFlashMessage(data.message, 'success');
             // 成功後にフロントエンドでリストから削除
             self.tasks.remove(task);
+            } else {
+                    console.log(data.message);  // エラーメッセージを表示
+                }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -200,8 +211,9 @@ self.saveTask = function(task) {
         body: JSON.stringify(updatedTask)
     }).then(response => response.json())
     .then(data => {
-        if (data.status === 'success') {
+        if (data.status === 'true') {
             console.log(data.message);  // 成功メッセージ
+            displayFlashMessage(data.message,'success')
         } else {
             console.log(data.message);  // エラーメッセージ
         }
