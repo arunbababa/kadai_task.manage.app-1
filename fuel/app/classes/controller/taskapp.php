@@ -19,7 +19,7 @@ class Controller_Taskapp extends Controller
         if (!in_array($current_action, $unrestricted_actions)) {
             // 認証が成功しない場合はログインページにリダイレクト
             if (!\Auth::check()) {
-                \Response::redirect('taskApp/login');
+                \Response::redirect('taskapp/login');
             }
         }
         
@@ -39,7 +39,7 @@ class Controller_Taskapp extends Controller
             {
                 // 認証成功時はタスク管理画面にリダイレクト
                 Session::set_flash('success','ログインしました！');
-                Response::redirect('taskApp/manageTasks');
+                Response::redirect('taskapp/manageTasks');
             } else 
                 {
                     // 認証失敗時にエラーメッセージをフラッシュセッションに保存
@@ -88,7 +88,7 @@ class Controller_Taskapp extends Controller
                 
                 // 登録成功時はログイン画面にリダイレクト
                 Session::set_flash('success', 'ユーザー登録が完了しました。');
-                Response::redirect('taskApp/login');
+                Response::redirect('taskapp/login');
                 
             } catch (Exception $e) 
             {
