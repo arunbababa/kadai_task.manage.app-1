@@ -7,9 +7,9 @@
 </head>
 <body>
 
-    <!-- ログインできたかどうかの確認のセッション -->
+    <!-- ログイン、タスク追加、削除、編集用のセッション -->
     <?php if (Session::get_flash('success')): ?>
-        <p><?php echo Session::get_flash('success'); ?></p>
+        <p id="flash-messages"><?php echo Session::get_flash('success'); ?></p>
     <?php endif; ?>
 
     <!-- フラッシュメッセージの表示場所 -->
@@ -28,7 +28,7 @@
                 <option value="<?= $value ?>"><?= $value ?></option>
             <?php endforeach; ?>
         </select>
-        <button type="submit">追加</button> <!-- これを押すとaddTaskメソッドが呼ばれて、タスクが追加されます。 -->
+        <button type="submit">追加</button>
     </form>
 
     <!-- タスクリストの表示 -->
@@ -57,25 +57,26 @@
     </ul>
 
     <script>
-        console.log(<?= json_encode($tasks); ?>);  // タスクリストを確認
-    </script>
 
-    <script>
-
-    function displayFlashMessage(message, type = 'success') {
+    // フラッシュメッセージ用の関数
+    function displayFlashMessage(message, type = 'success') 
+    {
+        // フラッシュ用の要素を取得
         const flashContainer = document.getElementById('flash-messages');
+        // フラッシュメッセージを反映する要素の作成
         const flashMessage = document.createElement('p');
         flashMessage.textContent = message;
-        flashMessage.className = type;  // メッセージの種類に応じたクラスを設定（スタイリング用）
+        flashMessage.className = type;
         flashContainer.appendChild(flashMessage);
         // 一定時間後にフラッシュメッセージを自動で消去
-        setTimeout(() => {
+        setTimeout(() => 
+        {
             flashMessage.remove();
         }, 5000);  // 5秒後にメッセージを削除
     }
 
-
-    function Task(data) {
+    function Task(data) 
+    {
         this.taskname = ko.observable(data.taskname);
         this.original_taskname = data.taskname;  // 編集前のタスク名を保持
         this.category = ko.observable(data.category);
@@ -83,7 +84,8 @@
         this.editing = ko.observable(false);  // 編集モードのフラグ
     }
 
-    function TaskViewModel() {
+    function TaskViewModel() 
+    {
         const self = this;
         console.log("Knockout.jsバインドが初期化されました");
         
@@ -97,54 +99,53 @@
         self.newTaskName = ko.observable('');
         self.newCategory = ko.observable('');
         self.newImportance = ko.observable('');
-        // Configから読み込んだ重要度の選択肢を渡す
         self.importanceOptions = <?= json_encode($importanceOptions['values']); ?>;
 
+        // タスクを追加するメソッド
+        self.addTask = function() 
+        {
+            console.log("addTaskメソッドが呼ばれました");
+            // CSRFトークンをメタタグから取得
+            const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
+            console.log(csrfToken)
 
-    // タスクを追加するメソッド
-    self.addTask = function() {
+            const newTask = 
+            {
+                taskname: self.newTaskName(),
+                category: self.newCategory(),
+                importance: self.newImportance()
+            };
 
-        console.log("addTaskメソッドが呼ばれました");
+            console.log("新しいタスクをリストに追加します:", newTask);
+            // フロントエンドでリストに追加
+            // self.tasks.push(new Task(newTask));
 
-        // CSRFトークンをメタタグから取得
-        const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
+            // サーバーにタスクを保存する処理を呼び出す（createコントローラ)
+            fetch('/taskApp/createTask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken 
+                },
+                body: JSON.stringify(newTask)
+            }).then(response => response.json())
+            .then(data => {
+                if (data.status === 'true') {
+                    console.log(data.message);  // 成功メッセージを表示
+                    // 成功メッセージをフロントエンドで表示
+                    displayFlashMessage(data.message, 'success');
+                    self.tasks.push(new Task(newTask));
+                    // 入力フィールドをリセット
+                    self.newTaskName('');
+                    self.newCategory('');
+                    self.newImportance('中');
+                } else {
+                    console.log(data.message);  // エラーメッセージを表示
+                }
+            });
 
-        const newTask = {
-            taskname: self.newTaskName(),
-            category: self.newCategory(),
-            importance: self.newImportance()
+            console.log("現在のタスクリスト:", self.tasks());
         };
-
-        console.log("新しいタスクをリストに追加します:", newTask);
-        // フロントエンドでリストに追加
-        // self.tasks.push(new Task(newTask));
-
-        // サーバーにタスクを保存する処理を呼び出す（createコントローラ)
-        fetch('/taskApp/createTask', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken 
-            },
-            body: JSON.stringify(newTask)
-        }).then(response => response.json())
-        .then(data => {
-            if (data.status === 'true') {
-                console.log(data.message);  // 成功メッセージを表示
-                // 成功メッセージをフロントエンドで表示
-                displayFlashMessage(data.message, 'success');
-                self.tasks.push(new Task(newTask));
-                // 入力フィールドをリセット
-                self.newTaskName('');
-                self.newCategory('');
-                self.newImportance('中');
-            } else {
-                console.log(data.message);  // エラーメッセージを表示
-            }
-        });
-
-        console.log("現在のタスクリスト:", self.tasks());
-    };
 
     // タスクを削除するメソッド
     self.removeTask = function(task) {

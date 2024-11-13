@@ -11,12 +11,12 @@
         
         <h1>ログイン</h1>
 
-        <!-- 正常に登録できた場合のsession -->
+        <!-- 正常に処理できた時のセッション（ログイン、ユーザ登録に関するセッションをsuccessとしてをまとめています） -->
         <?php if (Session::get_flash('success')): ?>
             <p class="success-message"><?php echo Session::get_flash('success'); ?></p>
         <?php endif; ?>
 
-        <!-- 登録に異常があった場合のsession -->
+        <!-- 処理に異常があった時のセッション（ログイン、ユーザ登録に関するセッションをerrorとしてをまとめています） -->
         <?php if (Session::get_flash('error')): ?>
             <p class="error-message"><?php echo Session::get_flash('error'); ?></p>
         <?php endif; ?>

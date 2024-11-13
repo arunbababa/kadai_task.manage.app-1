@@ -30,7 +30,7 @@ return array(
         'connection'  => array(
             'hostname'   => 'localhost',
             'port'       => '3306', 
-            'database'   => '', //taskappDBを参照
+            'database'   => 'taskapp', //taskappDBを参照
             'username'   => 'root',  // デフォルトのMySQLユーザー
             'password'   => 'root',  // デフォルトのMySQLパスワード（MAMPの場合）
             'persistent' => false,

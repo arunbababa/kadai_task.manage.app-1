@@ -1,11 +1,11 @@
 <?php
 
 
-class Controller_Taskapp extends Controller
+class Controller_taskApp extends Controller
 {
 
-    // beforeメソッドで、各アクション前に認証チェックを追加
-    public function before()
+    // 共通処理で、ログインユーザがいない場合はログイン画面へ遷移する
+        public function before()
     {
         parent::before();
 
@@ -13,16 +13,17 @@ class Controller_Taskapp extends Controller
         $unrestricted_actions = ['userRegister','login']; //manageTasksは仮置き（js練習中）
 
         // 現在のアクションを取得
-        $current_action = \Request::active()->action;
+        $current_action = Request::active()->action;
 
         // 認証不要アクションでなければ認証チェックを実施
-        if (!in_array($current_action, $unrestricted_actions)) {
-            // 認証が成功しない場合はログインページにリダイレクト
-            if (!\Auth::check()) {
-                \Response::redirect('taskapp/login');
+        if (!in_array($current_action, $unrestricted_actions)) 
+        {
+            // ログインユーザがいない場合は、ログインページにリダイレクト
+            if (!Auth::check()) 
+            {
+                Response::redirect('taskApp/login');
             }
         }
-        
     }
 
     public function action_login()
@@ -39,15 +40,16 @@ class Controller_Taskapp extends Controller
             {
                 // 認証成功時はタスク管理画面にリダイレクト
                 Session::set_flash('success','ログインしました！');
-                Response::redirect('taskapp/manageTasks');
+                Response::redirect('taskApp/manageTasks');
             } else 
-                {
-                    // 認証失敗時にエラーメッセージをフラッシュセッションに保存
-                    Session::set_flash('error', 'ユーザー名またはパスワードが間違っています。');
-                }
+            {
+                // 認証失敗時はログイン画面へリダイレクト　要修正フラグここ再読み込みでいいかな
+                Session::set_flash('error', 'ユーザー名またはパスワードが間違っています。');
+                Response::forge(View::forge('login'));
+            }
         }
 
-        // GETリクエストor認証失敗の時はログインビューを表示
+        // GETリクエストの時はログインビューを表示
         return Response::forge(View::forge('login'));
     }
 
@@ -61,34 +63,37 @@ class Controller_Taskapp extends Controller
             $email = Input::post('email');
             $password = Input::post('password');
 
-            // 簡単なバリデーション
+            // バリデーション
+
+            // どれかが空の場合
             if (empty($username) || empty($email) || empty($password)) {
                 Session::set_flash('error', '全ての項目を入力してください。');
                 return Response::forge(View::forge('userRegister'));
             }
 
+            // 
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 Session::set_flash('error', '正しいメールアドレスを入力してください。');
                 return Response::forge(View::forge('userRegister'));
             }
 
             if (strlen($password) < 8) {
-                Session::set_flash('error', 'パスワードは8文字以上にしてください。');
+                Session::set_flash('error', 'パスワードは文字以上にしてください。');
                 return Response::forge(View::forge('userRegister'));
             }
 
             // 新規ユーザーの登録処理
             try 
             {
+                // 前回のログインセッションが残る可能性があるため、明示的にログアウト
+                Auth::logout();
+
                 // 新しいユーザを登録する
                 Auth::create_user($username, $password, $email);
-
-                // 前回のユーザーセッションが残る可能性があるため、明示的にログアウト
-                Auth::logout();
                 
                 // 登録成功時はログイン画面にリダイレクト
                 Session::set_flash('success', 'ユーザー登録が完了しました。');
-                Response::redirect('taskapp/login');
+                Response::redirect('taskApp/login');
                 
             } catch (Exception $e) 
             {
@@ -102,18 +107,18 @@ class Controller_Taskapp extends Controller
     }
 
     public function action_manageTasks()
-
-
     {
         // 現在のユーザーIDを取得
-        list(, $user_id) = \Auth::get_user_id();
+        list(, $user_id) = Auth::get_user_id();
 
         // タスクリストを取得
         $tasks = Model_Task::taskList($user_id);
 
-        // セッションに保存されたトークンがあれば取得し、なければ新規作成
-        if (!$csrf_token = Session::get('csrf_token')) {
-            $csrf_token = Security::fetch_token();
+        // セッションに保存されたcsrfトークンがあれば取得し、なければ新規作成
+        // これログイン成功してmanageTasks世呼び出す際にtoken発行の方が自然ではないか？タイミングに注意しよう
+        if (!$csrf_token = Session::get('csrf_token')) 
+        {
+            $csrf_token = Security::fetch_token(); //fetch_tokenは初回呼び出し時は生成してくれる、2回目以降はgetしてくれるみたい
             Session::set('csrf_token', $csrf_token); // セッションにトークンを保存
         }
 
@@ -134,15 +139,14 @@ class Controller_Taskapp extends Controller
 
 
         try {
-
             // POSTデータを取得
-            $post = \Input::json();
+            $post = Input::json();
 
             // セッションからCSRFトークンを取得し、送信されたトークンと照合
-            $expected_token = Session::get('csrf_token');
-            $csrf_token = \Input::headers('X-CSRF-Token');
+            $posted_csrf_token = Session::get('csrf_token');
+            $csrf_token = Input::headers('X-CSRF-Token');
 
-            if ($csrf_token !== $expected_token) {
+            if ($csrf_token !== $posted_csrf_token) {
                 Log::error('CSRFトークンが一致しませんでした。送信されたトークン: ' . $csrf_token);
                 return Response::forge(json_encode(['status' => 'error', 'message' => 'CSRFトークンが無効です']), 400)
                                 ->set_header('Content-Type', 'application/json');
