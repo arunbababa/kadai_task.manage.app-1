@@ -4,19 +4,19 @@
 class Controller_taskApp extends Controller
 {
 
-    // 共通処理で、ログインユーザがいない場合はログイン画面へ遷移する
+    // 共通処理：ログインユーザがいない場合はログイン画面へ遷移する
         public function before()
     {
         parent::before();
 
-        // 認証不要のアクションを設定
-        $unrestricted_actions = ['userRegister','login']; //manageTasksは仮置き（js練習中）
+        // 認証が不要なアクション(新規ユーザ登録とユーザログイン)
+        $no_auth_needed_actions = ['userRegister','login'];
 
-        // 現在のアクションを取得
+        // 現在のアクション
         $current_action = Request::active()->action;
 
-        // 認証不要アクションでなければ認証チェックを実施
-        if (!in_array($current_action, $unrestricted_actions)) 
+        // 現在のアクションが認証不要かどうかを判別
+        if (!in_array($current_action, $no_auth_needed_actions)) 
         {
             // ログインユーザがいない場合は、ログインページにリダイレクト
             if (!Auth::check()) 
@@ -106,6 +106,7 @@ class Controller_taskApp extends Controller
         return Response::forge(View::forge('userRegister')); 
     }
 
+    // タスク管理画面へ遷移
     public function action_manageTasks()
     {
         // 現在のユーザーIDを取得
@@ -114,39 +115,32 @@ class Controller_taskApp extends Controller
         // タスクリストを取得
         $tasks = Model_Task::taskList($user_id);
 
-        // セッションに保存されたcsrfトークンがあれば取得し、なければ新規作成
-        // これログイン成功してmanageTasks世呼び出す際にtoken発行の方が自然ではないか？タイミングに注意しよう
-        if (!$csrf_token = Session::get('csrf_token')) 
-        {
-            $csrf_token = Security::fetch_token(); //fetch_tokenは初回呼び出し時は生成してくれる、2回目以降はgetしてくれるみたい
-            Session::set('csrf_token', $csrf_token); // セッションにトークンを保存
-        }
-
         // 重要度の選択肢を取得
         Config::load('importance', true);
         $importanceOptions = Config::get('importance.options');
-        
-        // タスクの内容ををビューに渡す
+
+        // manageTasksビューを呼び出し、変数情報も渡す
         return View::forge('manageTasks', [
             'tasks' => $tasks,
             'importanceOptions' => $importanceOptions,
-            'csrf_token' => $csrf_token
-        ]); // 配列の、に注意
+        ]);
     }
 
     public function post_createTask()
     {
-
-
         try {
             // POSTデータを取得
             $post = Input::json();
 
             // セッションからCSRFトークンを取得し、送信されたトークンと照合
-            $posted_csrf_token = Session::get('csrf_token');
-            $csrf_token = Input::headers('X-CSRF-Token');
+            $csrf_token = Security::fetch_token(); // FuelPHPのトークン生成・取得メソッドを使用
+            $submitted_token = Input::headers('X-CSRF-Token');
 
-            if ($csrf_token !== $posted_csrf_token) {
+            // サーバー側とクライアント側のトークンをログに出力
+            Log::info('サーバー側のCSRFトークン: ' . $csrf_token);
+            Log::info('送信されたCSRFトークン: ' . $submitted_token);
+            
+            if ($csrf_token !== $submitted_token) {
                 Log::error('CSRFトークンが一致しませんでした。送信されたトークン: ' . $csrf_token);
                 return Response::forge(json_encode(['status' => 'error', 'message' => 'CSRFトークンが無効です']), 400)
                                 ->set_header('Content-Type', 'application/json');

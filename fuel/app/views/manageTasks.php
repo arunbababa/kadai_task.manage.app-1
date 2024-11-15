@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <title>タスク管理</title>
-    <meta name="fuel_csrf_token" content="<?= $csrf_token; ?>">
     <script src="https://cdn.jsdelivr.net/npm/knockout@3.5.1/build/output/knockout-latest.js"></script>
 </head>
 <body>
@@ -14,6 +13,8 @@
 
     <!-- フラッシュメッセージの表示場所 -->
     <div id="flash-messages"></div>
+
+    <?= Security::js_fetch_token(); ?>
 
     <h1>タスク管理</h1>
 
@@ -105,10 +106,8 @@
         self.addTask = function() 
         {
             console.log("addTaskメソッドが呼ばれました");
-            // CSRFトークンをメタタグから取得
-            const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
-            console.log(csrfToken)
-
+            const csrfToken = fuel_csrf_token(); // JavaScriptでCSRFトークンを取得
+            console.log("クライアント側のCSRFトークン:", csrfToken);
             const newTask = 
             {
                 taskname: self.newTaskName(),
