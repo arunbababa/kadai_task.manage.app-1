@@ -1,7 +1,7 @@
 <?php
 
-
-class Controller_Taskapp extends Controller
+// 内部クラス extends グローバルクラス　(グローバルクラスの継承をしている、\はグローバル名前空間から関数やらクラスを持って来る意味（名前が定義されていない空間をグローバル名前空間という、ルート）)
+class Controller_Taskapp extends \Controller
 {
 
     // beforeメソッドで、各アクション前に認証チェックを追加
@@ -101,45 +101,36 @@ class Controller_Taskapp extends Controller
         return Response::forge(View::forge('userRegister')); 
     }
 
+    // タスク管理画面へ遷移
     public function action_manageTasks()
-
-
     {
-        // 現在のユーザーIDを取得
-        list(, $user_id) = \Auth::get_user_id();
+        // CSRFトークンの取得、ない場合は新規作成
+        $csrf_token = Session::get('csrf_token') ?: Security::fetch_token();
+        Session::set('csrf_token', $csrf_token);
 
-        // タスクリストを取得
+        // ユーザーIDとタスクリストを取得
+        $user_id = Auth::get_user_id()[1];
         $tasks = Model_Task::taskList($user_id);
 
-        // セッションに保存されたトークンがあれば取得し、なければ新規作成
-        if (!$csrf_token = Session::get('csrf_token')) {
-            $csrf_token = Security::fetch_token();
-            Session::set('csrf_token', $csrf_token); // セッションにトークンを保存
-        }
-
         // 重要度の選択肢を取得
-        Config::load('importance', true);
-        $importanceOptions = Config::get('importance.options');
+        $importanceOptions = Config::load('importance', true)['options'];
         
         // タスクの内容ををビューに渡す
         return View::forge('manageTasks', [
             'tasks' => $tasks,
             'importanceOptions' => $importanceOptions,
             'csrf_token' => $csrf_token
-        ]); // 配列の、に注意
+        ]);
     }
 
     public function post_createTask()
     {
-
-
         try {
-
             // POSTデータを取得
             $post = \Input::json();
 
             // セッションからCSRFトークンを取得し、送信されたトークンと照合
-            $expected_token = Session::get('csrf_token');
+            $expected_token = Session::get('csrf_token');// 初めてmanageTasksを呼び出したときに作られたトークン（ログイン時）
             $csrf_token = \Input::headers('X-CSRF-Token');
 
             if ($csrf_token !== $expected_token) {
@@ -156,8 +147,11 @@ class Controller_Taskapp extends Controller
                 // タスクを追加するためにModel_Taskを呼び出し
                 Model_Task::addTask($post['taskname'], $post['category'], $post['importance'],$user_id);
 
-                return Response::forge(json_encode(['status' => 'true', 'message' => 'タスクが追加されました']), 200)
-                                ->set_header('Content-Type', 'application/json');
+                return Response::forge(
+                    json_encode(['status' => 'true', 'message' => 'タスクが追加されました']), // $body
+                    200, // $status
+                    ['Content-Type' => 'application/json'] // $headers
+                );
             } else {
                 // エラーメッセージを返す
                 return Response::forge(json_encode(['status' => 'error', 'message' => 'タスクデータが不足しています']), 400)

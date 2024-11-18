@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <title>タスク管理</title>
-    <meta name="fuel_csrf_token" content="<?= $csrf_token; ?>">
     <script src="https://cdn.jsdelivr.net/npm/knockout@3.5.1/build/output/knockout-latest.js"></script>
 </head>
 <body>
@@ -20,6 +19,7 @@
     <!-- タスク追加フォーム -->
     <h2>タスクを追加</h2>
     <form data-bind="submit: addTask"> 
+        <input type="hidden" id="csrfToken" name="csrf_token" value="<?= $csrf_token; ?>"> <!-- CSRFトークンを隠しフィールドに追加 -->
         <input type="text" placeholder="タスク名" data-bind="value: newTaskName" required /> 
         <input type="text" placeholder="カテゴリ" data-bind="value: newCategory" required /> 
         <select data-bind="value: newImportance">
@@ -106,8 +106,8 @@
 
         console.log("addTaskメソッドが呼ばれました");
 
-        // CSRFトークンをメタタグから取得
-        const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
+        // フォームからCSRFトークンを取得
+        const csrfToken = document.getElementById('csrfToken').value;
 
         const newTask = {
             taskname: self.newTaskName(),
