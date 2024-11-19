@@ -6,13 +6,13 @@
 
 ## 機能
 * 新規ユーザ登録
-  ![image](ImageForREADME\UserRegister.png)
+  ![image](.\ImageForREADME\UserRegister.png)
 
 * ユーザログイン
-![image](ImageForREADME\login.png)
+![image](.\ImageForREADME\login.png)
 
 * ユーザごとのタスク管理
-![image](ImageForREADME\taskManage.png)
+![image](.\ImageForREADME\taskManage.png)
 
 ## More information
 * MAMP(Apache+MySQL+PHP)による開発環境で作成しました。
