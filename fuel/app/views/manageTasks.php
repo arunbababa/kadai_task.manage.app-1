@@ -149,7 +149,8 @@
     // タスクを削除するメソッド
     self.removeTask = function(task) {
 
-        const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
+        // フォームからCSRFトークンを取得
+        const csrfToken = document.getElementById('csrfToken').value;
         
         // サーバーに削除リクエストを送信
         fetch('/taskapp/deleteTask', {
@@ -181,47 +182,48 @@
         }
 
     // タスクを更新するメソッド
-    self.editTask = function(task) {
+    self.editTask = function(task) 
+    {
 
         console.log("editTaskメソッドが呼ばれました:", task);
 
         task.editing(true);  // 編集モードに切り替え
-};
-
-self.saveTask = function(task) {
-    task.editing(false);  // 編集モードを解除
-
-    // CSRFトークンをメタタグから取得
-    const csrfToken = document.querySelector('meta[name="fuel_csrf_token"]').getAttribute('content');
-
-    // サーバーに更新内容を送信
-    const updatedTask = {
-        pre_taskname: task.original_taskname, 
-        taskname: task.taskname(),
-        category: task.category(),
-        importance: task.importance()
     };
 
-    fetch('/taskApp/updateTask', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken  // CSRFトークンを追加
-        },
-        body: JSON.stringify(updatedTask)
-    }).then(response => response.json())
-    .then(data => {
-        if (data.status === 'true') {
-            console.log(data.message);  // 成功メッセージ
-            displayFlashMessage(data.message,'success')
-        } else {
-            console.log(data.message);  // エラーメッセージ
-        }
-    });
-}
+    self.saveTask = function(task) {
+        task.editing(false);  // 編集モードを解除
 
-        ko.applyBindings(new TaskViewModel());
-    </script>
+        // フォームからCSRFトークンを取得
+        const csrfToken = document.getElementById('csrfToken').value;
+        
+        // サーバーに更新内容を送信
+        const updatedTask = {
+            pre_taskname: task.original_taskname, 
+            taskname: task.taskname(),
+            category: task.category(),
+            importance: task.importance()
+        };
+
+        fetch('/taskApp/updateTask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken  // CSRFトークンを追加
+            },
+            body: JSON.stringify(updatedTask)
+        }).then(response => response.json())
+        .then(data => {
+            if (data.status === 'true') {
+                console.log(data.message);  // 成功メッセージ
+                displayFlashMessage(data.message,'success')
+            } else {
+                console.log(data.message);  // エラーメッセージ
+            }
+        });
+    }
+
+            ko.applyBindings(new TaskViewModel());
+        </script>
 
 </body>
 </html>
